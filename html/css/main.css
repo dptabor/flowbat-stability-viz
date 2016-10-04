@@ -1,0 +1,26 @@
+@import url('./normalize.min.css')
+
+.outer, .inner {
+  shape-rendering: crispEdges;
+}
+
+.outer {
+  fill: none;
+  stroke: #000;
+}
+
+.inner {
+  fill: #ccc;
+  stroke: #000;
+  stroke-dasharray: 3, 4;
+}
+
+.axis line {
+  fill: none;
+  stroke: #000;
+}
+
+.curve {
+  fill: none;
+  stroke: #000;
+}

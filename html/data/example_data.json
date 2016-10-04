@@ -1,0 +1,26 @@
+{
+  "stability_window": {
+    "points": [
+      {"ph": 0, "ev": 1.230},
+      {"ph": 14, "ev": 0.404},
+      {"ph": 14, "ev": -0.826},
+      {"ph": 0, "ev": 0.118}
+    ]
+  },
+  "molecules": [
+    {
+      "id": "ferroin",
+      "label": "Ferroin",
+      "tags": ["Iron", "Metal organic", "Positive Charge (+2)", "Acid Stable",
+        "Neutral Stable"],
+      "points": [
+        {"ph": 0, "ev": 0.905},
+        {"ph": 1, "ev": 1.069},
+        {"ph": 3, "ev": 1.079},
+        {"ph": 7, "ev": 1.082},
+        {"ph": 9, "ev": 1.151},
+        {"ph": 11, "ev": null}
+      ]
+    }
+  ]
+}

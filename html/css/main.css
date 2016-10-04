@@ -24,3 +24,8 @@
   fill: none;
   stroke: #000;
 }
+
+.stability-window {
+  fill: hsla(0, 100%, 50%, .1);
+  stroke: #000;
+}

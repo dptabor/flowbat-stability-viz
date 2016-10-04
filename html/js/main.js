@@ -73,9 +73,12 @@ class PourvaixViz {
   updateScales (state) {
     let scales = {}
     let scaleCfgs = [
-      {key: 'ph', range: [0, this.dimensions.chart.width]},
+      {key: 'ph', range: [0, this.dimensions.chart.width],
+        genBounds: (calculatedBounds) => calculatedBounds},
       {key: 'ev', range: [0, this.dimensions.chart.height], invertDomain: true,
-        fixedBounds: {min: 0}}
+        genBounds: (calculatedBounds) => Object.assign(
+          {}, calculatedBounds, {min: d3.min([0, calculatedBounds.min])})
+      }
     ]
     let combinedPoints = [...this.getStabilityWindowPoints(state),
       ...this.getCombinedMoleculePoints(state)]
@@ -88,12 +91,11 @@ class PourvaixViz {
         min: d3.min(scaleValues),
         max: d3.max(scaleValues),
       }
-      let scaleBounds = Object.assign(calculatedBounds, scaleCfg.fixedBounds)
+      let bounds = scaleCfg.genBounds(calculatedBounds)
       scales[scaleCfg.key] = d3.scaleLinear()
         .range(scaleCfg.range)
         .domain((scaleCfg.invertDomain) ?
-               [scaleBounds.max, scaleBounds.min] :
-               [scaleBounds.min, scaleBounds.max])
+               [bounds.max, bounds.min] : [bounds.min, bounds.max])
     }
     this.scales = scales
   }
@@ -112,6 +114,7 @@ class PourvaixViz {
 
   render () {
     this.renderAxes()
+    this.renderStabilityWindow()
     this.renderMolecules()
   }
 
@@ -132,6 +135,19 @@ class PourvaixViz {
         .classed('ev axis', true)
         .attr('transform', `translate(${this.dimensions.chart.width},0)`)
     .call(this.axes.ev)
+  }
+
+  renderStabilityWindow () {
+    let stabilityWindowG = this.chartRoot.append('g')
+      .classed('stability-window', true)
+    this.renderCurve({
+      classes: 'stability-window-outline',
+      container: stabilityWindowG,
+      points: this.state.data.stability_window.points,
+      xFn: d => this.scales.ph(d.ph),
+      yFn: d => this.scales.ev(d.ev),
+    })
+    return stabilityWindowG
   }
 
   renderMolecules () {

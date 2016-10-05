@@ -1,4 +1,17 @@
-@import url('./normalize.min.css')
+#app-root {
+  display: flex;
+  flex-direction: row;
+  width: 92%;
+  margin: auto;
+}
+
+#left-panel {
+  flex: 1 1 auto;
+}
+
+#right-panel {
+  flex: 1 1 auto;
+}
 
 .outer, .inner {
   shape-rendering: crispEdges;

@@ -21,6 +21,20 @@
         {"ph": 9, "ev": 1.151},
         {"ph": 11, "ev": null}
       ]
+    },
+    {
+      "id": "Foo",
+      "label": "Foo",
+      "tags": ["Iron", "Metal organic", "Positive Charge (+2)", "Acid Stable",
+        "Neutral Stable"],
+      "points": [
+        {"ph": 0, "ev": 0.405},
+        {"ph": 1, "ev": 0.809},
+        {"ph": 3, "ev": 1.079},
+        {"ph": 7, "ev": 1.022},
+        {"ph": 9, "ev": 1.251},
+        {"ph": 11, "ev": null}
+      ]
     }
   ]
 }

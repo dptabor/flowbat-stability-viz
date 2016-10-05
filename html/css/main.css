@@ -38,7 +38,15 @@
   stroke: #000;
 }
 
-.stability-window {
+.molecule {
+  opacity: .1;
+}
+
+.molecule.selected {
+  opacity: 1;
+}
+
+.stability-window .outline {
   fill: hsla(0, 100%, 50%, .1);
   stroke: #000;
 }

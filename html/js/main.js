@@ -2,12 +2,33 @@
 
 let DATA_URL = 'data/example_data.json'
 
+let fakeData = {
+  stability_window: {
+    points: [
+      {ph: 0, ev: 1.230},
+      {ph: 14, ev: 0.404},
+      {ph: 14, ev: -0.826},
+      {ph: 0, ev: 0.118}
+    ]
+  },
+  molecules: [...Array(3).keys()].map((i) => ({
+    id: `molecule-${i}`,
+    label: `Molecule_${i}`,
+    tags: [1, 2, 3].map(t => `tag_${i}_${t}`),
+    points: [...Array(12).keys()].map((j) => ({
+      ph: j, ev: (1.5 - 1.5 * Math.random())
+    }))
+  }))
+}
+
 function main () {
   let viz = new PourvaixViz()
-  window.viz = viz
+  /*
   d3.json(DATA_URL, function onLoadData (data) {
     viz.setState({data})
   })
+  */
+  viz.setState({data: fakeData})
 }
 
 class PourvaixViz {
@@ -69,6 +90,7 @@ class PourvaixViz {
 
   genChartRoot ({svgRoot, dimensions}) {
     let chartRoot = svgRoot.append('g')
+      .classed('chart-root', true)
       .attr('transform',
             `translate(${dimensions.padding.left}, ${dimensions.padding.top})`)
     chartRoot.append('rect')
@@ -213,30 +235,33 @@ class PourvaixViz {
       ev: d3.axisRight().scale(this.scales.ev),
     }
 
-    this.chartRoot
+    let axesSelection = this.chartRoot.selectAll('.axes').data([null]).enter()
       .append('g')
-        .classed('ph axis', true)
-        .attr('transform', `translate(0, ${this.dimensions.chart.height})`)
+      .classed('axes', true)
+    axesSelection.append('g')
+      .classed('ph axis', true)
+      .attr('transform', `translate(0, ${this.dimensions.chart.height})`)
       .call(this.axes.ph)
-
-    this.chartRoot
-      .append('g')
-        .classed('ev axis', true)
-        .attr('transform', `translate(${this.dimensions.chart.width},0)`)
-    .call(this.axes.ev)
+    axesSelection.append('g')
+      .classed('ev axis', true)
+      .attr('transform', `translate(${this.dimensions.chart.width},0)`)
+      .call(this.axes.ev)
   }
 
   renderStabilityWindow () {
-    let stabilityWindowG = this.chartRoot.append('g')
+    let points = this.state.data.stability_window.points
+    let xFn = d => this.scales.ph(d.ph)
+    let yFn = d => this.scales.ev(d.ev)
+    let stabilityWindowSelection = this.chartRoot.selectAll('.stability-window')
+      .data([null]).enter()
+    stabilityWindowSelection.append('g')
       .classed('stability-window', true)
-    this.renderCurve({
-      classes: 'stability-window-outline',
-      container: stabilityWindowG,
-      points: this.state.data.stability_window.points,
-      xFn: d => this.scales.ph(d.ph),
-      yFn: d => this.scales.ev(d.ev),
-    })
-    return stabilityWindowG
+      .append('path')
+        .classed('outline', true)
+    stabilityWindowSelection.select('.outline')
+      .datum(points)
+      .attr('d', d3.line().x(xFn).y(yFn))
+    return stabilityWindowSelection
   }
 
   renderMoleculesInChart (molecules) {
@@ -246,43 +271,33 @@ class PourvaixViz {
   }
 
   renderMoleculeInChart (molecule) {
-    let moleculeG = this.chartRoot.append('g')
-      .classed(`molecule ${molecule.id}`, true)
-    let commonKwargs = {
-      container: moleculeG,
-      points: molecule.points,
-      xFn: d => this.scales.ph(d.ph),
-      yFn: d => this.scales.ev(d.ev),
-    }
-    this.renderCurve(Object.assign({
-      classes: 'curve'
-    }, commonKwargs))
-    this.renderPoints(Object.assign({
-      classes: 'points',
-      radius: 2,
-    }, commonKwargs))
-  }
+    let curveClass = 'curve'
+    let pointsClass = 'points'
+    let xFn = d => this.scales.ph(d.ph)
+    let yFn = d => this.scales.ev(d.ev)
 
-  renderCurve (kwargs = {}) {
-    let {classes, container, points, xFn, yFn} = kwargs
-    let curve = container.append('path')
-      .datum(points)
-      .classed(classes || '', true)
-      .attr('d', d3.line().x(xFn).y(yFn))
-    return curve
-  }
+    let updateSelection = this.chartRoot.selectAll(`.${molecule.id}`)
+      .data([molecule], d => d.id)
+    let enterSelection = updateSelection.enter()
+      .append('g')
+        .classed(`molecule ${molecule.id}`, true)
+    enterSelection.append('path').classed(curveClass, true)
+    enterSelection.append('g').classed(pointsClass, true)
 
-  renderPoints (kwargs = {}) {
-    let {classes, container, points, radius, xFn, yFn} = kwargs
-    let pointsG = container.append('g')
-      .classed(classes || '', true)
-    let pointEls = pointsG.selectAll('circle').data(points)
-    pointEls.enter()
-      .append('circle')
-      .attr('cx', xFn)
-      .attr('cy', yFn)
-      .attr('r', radius)
-    return pointsG
+    let mergeSelection = enterSelection.merge(updateSelection)
+    mergeSelection.classed('selected', this._moleculeIsSelected(molecule))
+
+    mergeSelection.selectAll(`.${curveClass}`)
+      .attr('d', d3.line().x(xFn).y(yFn)(molecule.points))
+
+    let pointRadius = 2
+    let circleSelection = mergeSelection.selectAll(`.${pointsClass}`)
+      .selectAll('circle').data(molecule.points)
+    circleSelection.enter().append('circle')
+      .merge(circleSelection)
+        .attr('cx', xFn)
+        .attr('cy', yFn)
+        .attr('r', pointRadius)
   }
 
   renderMoleculesInDataTable (molecules) {
@@ -291,10 +306,13 @@ class PourvaixViz {
     this.dataTable.rows().eq(0).each((index) => {
       let row = this.dataTable.row(index)
       let molecule = row.data()
-      let isSelected = this.state.moleculeSelection[molecule.id]
-      if (isSelected) { row.select() }
+      if (this._moleculeIsSelected(molecule)) { row.select() }
     })
     this.dataTable.draw(false)
+  }
+
+  _moleculeIsSelected (molecule) {
+    return this.state.moleculeSelection[molecule.id]
   }
 
 }

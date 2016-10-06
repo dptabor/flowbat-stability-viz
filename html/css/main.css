@@ -33,20 +33,35 @@
   stroke: #000;
 }
 
-.curve {
-  fill: none;
-  stroke: #000;
+.stability-window .outline {
+  fill: hsla(0, 100%, 50%, .1);
+  stroke: hsla(0, 100%, 15%, .1);
+  stroke-width: 2;
 }
 
 .molecule {
   opacity: .1;
+  transition: opacity .3s;
+  stroke: hsla(0, 0%, 0%, 1.0);
+  fill: hsla(0, 0%, 0%, 1.0);
+}
+
+.molecule:hover {
+  opacity: .5;
+  stroke: hsla(0, 50%, 50%, 1.0);
+  fill: hsla(0, 50%, 60%, 1.0);
+}
+
+.molecule .curve {
+  fill: none;
+  stroke: inherit;
+  stroke-width: 5;
+}
+
+.molecule .points circle {
+  r: 4.5;
 }
 
 .molecule.selected {
   opacity: 1;
-}
-
-.stability-window .outline {
-  fill: hsla(0, 100%, 50%, .1);
-  stroke: #000;
 }

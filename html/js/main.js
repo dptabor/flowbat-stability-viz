@@ -271,8 +271,6 @@ class PourvaixViz {
   }
 
   renderMoleculeInChart (molecule) {
-    let curveClass = 'curve'
-    let pointsClass = 'points'
     let xFn = d => this.scales.ph(d.ph)
     let yFn = d => this.scales.ev(d.ev)
 
@@ -281,19 +279,21 @@ class PourvaixViz {
     let enterSelection = updateSelection.enter()
       .append('g')
         .classed(`molecule ${molecule.id}`, true)
-    enterSelection.append('path').classed(curveClass, true)
-    enterSelection.append('g').classed(pointsClass, true)
-
     let mergeSelection = enterSelection.merge(updateSelection)
     mergeSelection.classed('selected', this._moleculeIsSelected(molecule))
 
-    mergeSelection.selectAll(`.${curveClass}`)
-      .attr('d', d3.line().x(xFn).y(yFn)(molecule.points))
+    let curveClass = 'curve'
+    let curvePath = d3.line().x(xFn).y(yFn)(molecule.points)
+    enterSelection.append('path').classed(curveClass, true)
+    mergeSelection.selectAll(`.${curveClass}`).attr('d', curvePath)
 
+    let pointsClass = 'points'
     let pointRadius = 2
+    enterSelection.append('g').classed(pointsClass, true)
     let circleSelection = mergeSelection.selectAll(`.${pointsClass}`)
       .selectAll('circle').data(molecule.points)
-    circleSelection.enter().append('circle')
+    circleSelection.enter()
+      .append('circle')
       .merge(circleSelection)
         .attr('cx', xFn)
         .attr('cy', yFn)

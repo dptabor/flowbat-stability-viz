@@ -33,6 +33,7 @@ class PourvaixViz {
   constructor () {
     this.dimensions = this.genDimensions()
     this.appRoot = this.genAppRoot()
+    this.setupTooltips()
     this.svgRoot = this.genSvgRoot({
       dimensions: this.dimensions,
       parent: this.appRoot.select('#left-panel')
@@ -55,6 +56,25 @@ class PourvaixViz {
     appRoot.append('div').attr('id', 'left-panel')
     appRoot.append('div').attr('id', 'right-panel')
     return appRoot
+  }
+
+  setupTooltips () {
+    $('#app-root').on('mouseover', '[title!=""]', function (ev) {
+      $(this).qtip({
+        overwrite: false, // Make sure the tooltip won't be overridden once created
+        hide: {
+          event: 'mouseout',
+          fixed: true,
+        },
+        position: {
+          adjust: {x: 10}
+        },
+        show: {
+          event: ev.type,
+          ready: true,
+        }
+      }, ev)
+    })
   }
 
   genDimensions () {
@@ -309,36 +329,7 @@ class PourvaixViz {
     pointMergeSelection.selectAll('circle')
       .attr('cx', xFn)
       .attr('cy', yFn)
-
-    pointMergeSelection.on('mouseover', (p) => {
-      let padding = 5
-      let offset = 5
-      tooltipMergeSelection
-        .classed('active', true)
-        .attr('transform', `translate(${offset + padding + xFn(p)}, ${yFn(p)})`)
-      let textSelection = tooltipMergeSelection.select('text')
-      textSelection.text(`pH: ${p.ph}, ev: ${p.ev.toPrecision(2)}`)
-      let textBBox = textSelection.node().getBBox()
-      tooltipMergeSelection.select('rect')
-        .attr('width', textBBox.width + 2 * padding)
-        .attr('height', textBBox.height + 0.5 * padding)
-        .attr('x', textBBox.x - padding)
-        .attr('y', textBBox.y)
-    })
-    pointMergeSelection.on('mouseout', (p) => {
-      tooltipMergeSelection.classed('active', false)
-    })
-
-    let tooltipClass = 'tooltip'
-    let tooltipEnterSelection = enterSelection.append('g')
-      .classed(tooltipClass, true)
-    tooltipEnterSelection.append('rect')
-      .classed('text-bg', true)
-    tooltipEnterSelection.append('text')
-      .attr('text-anchor', 'left')
-      .attr('dx', '0')
-      .attr('dy', '.35em')
-    let tooltipMergeSelection = mergeSelection.select(`.${tooltipClass}`)
+      .attr('title', p => `pH: ${p.ph}, ev: ${p.ev.toPrecision(2)}`)
   }
 
   toggleMolecule (molecule) {

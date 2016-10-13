@@ -1,7 +1,5 @@
 /* global d3, $ */
 
-let DATA_URL = 'data/example_data.json'
-
 let fakeData = {
   stability_window: {
     points: [
@@ -274,6 +272,8 @@ class PourvaixViz {
     let xFn = d => this.scales.ph(d.ph)
     let yFn = d => this.scales.ev(d.ev)
 
+    let clickHandler = () => this.toggleMolecule(molecule)
+
     let updateSelection = this.chartRoot.selectAll(`.${molecule.id}`)
       .data([molecule], d => d.id)
     let enterSelection = updateSelection.enter()
@@ -284,20 +284,57 @@ class PourvaixViz {
 
     let curveClass = 'curve'
     let curvePath = d3.line().x(xFn).y(yFn)(molecule.points)
-    enterSelection.append('path').classed(curveClass, true)
+    enterSelection.append('path')
+      .classed(curveClass, true)
+      .on('click', clickHandler)
     mergeSelection.selectAll(`.${curveClass}`).attr('d', curvePath)
 
     let pointsClass = 'points'
-    let pointRadius = 2
     enterSelection.append('g').classed(pointsClass, true)
-    let circleSelection = mergeSelection.selectAll(`.${pointsClass}`)
-      .selectAll('circle').data(molecule.points)
-    circleSelection.enter()
+    let pointClass = 'point'
+    let pointsSelection = mergeSelection.select(`.${pointsClass}`)
+    let pointSelection = pointsSelection
+      .selectAll(`.${pointClass}`)
+      .data(molecule.points)
+    let pointEnterSelection = pointSelection.enter()
+      .append('g')
+      .classed(pointClass, true)
+    let pointMergeSelection = pointEnterSelection.merge(pointSelection)
+
+    let circleRadius = 1
+    pointEnterSelection
       .append('circle')
-      .merge(circleSelection)
-        .attr('cx', xFn)
-        .attr('cy', yFn)
-        .attr('r', pointRadius)
+        .attr('r', circleRadius)
+        .on('click', clickHandler)
+    pointMergeSelection.selectAll('circle')
+      .attr('cx', xFn)
+      .attr('cy', yFn)
+
+    let textPaddingFactor = 0.2
+    let textContainerSelection = pointEnterSelection.append('g')
+      .classed('text-container', true)
+      .attr('transform', p => `translate(${xFn(p)}, ${yFn(p)})`)
+    textContainerSelection.append('text')
+      .attr('text-anchor', 'left')
+      .attr('dx', '0')
+      .attr('dy', '.35em')
+      .text(p => `pH: ${p.ph}, ev: ${p.ev.toPrecision(2)}`)
+      .call((selection) => selection.each((d, i, nodes) => {
+        d.bbox = nodes[i].getBBox()
+      }))
+    textContainerSelection.insert('rect', 'text')
+      .classed('text-bg', true)
+      .attr('width', d => (1 + textPaddingFactor) * d.bbox.width)
+      .attr('height', d => (1 + textPaddingFactor) * d.bbox.height)
+      .attr('x', d => -0.5 * textPaddingFactor * d.bbox.width)
+      .attr('y', d => -0.5 * (1 + textPaddingFactor) * d.bbox.height)
+      .style('fill', 'yellow')
+  }
+
+  toggleMolecule (molecule) {
+    this._updateMoleculeSelection({
+      [molecule.id]: !this._moleculeIsSelected(molecule)
+    })
   }
 
   renderMoleculesInDataTable (molecules) {

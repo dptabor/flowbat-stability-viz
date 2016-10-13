@@ -58,16 +58,16 @@
   r: 4.5;
 }
 
-.molecule .points .text-container {
+.molecule .tooltip {
   visibility: hidden;
 }
 
-.molecule .points .point:hover .text-container .text-bg {
+.molecule .tooltip .text-bg {
   fill: hsla(0, 0%, 90%, 1);
   stroke: hsla(0, 0%, 65%, 1);
 }
 
-.molecule .points .point:hover .text-container {
+.molecule .tooltip.active {
   visibility: visible;
 }
 

@@ -310,25 +310,35 @@ class PourvaixViz {
       .attr('cx', xFn)
       .attr('cy', yFn)
 
-    let textPaddingFactor = 0.2
-    let textContainerSelection = pointEnterSelection.append('g')
-      .classed('text-container', true)
-      .attr('transform', p => `translate(${xFn(p)}, ${yFn(p)})`)
-    textContainerSelection.append('text')
+    pointMergeSelection.on('mouseover', (p) => {
+      let padding = 5
+      let offset = 5
+      tooltipMergeSelection
+        .classed('active', true)
+        .attr('transform', `translate(${offset + padding + xFn(p)}, ${yFn(p)})`)
+      let textSelection = tooltipMergeSelection.select('text')
+      textSelection.text(`pH: ${p.ph}, ev: ${p.ev.toPrecision(2)}`)
+      let textBBox = textSelection.node().getBBox()
+      tooltipMergeSelection.select('rect')
+        .attr('width', textBBox.width + 2 * padding)
+        .attr('height', textBBox.height + 0.5 * padding)
+        .attr('x', textBBox.x - padding)
+        .attr('y', textBBox.y)
+    })
+    pointMergeSelection.on('mouseout', (p) => {
+      tooltipMergeSelection.classed('active', false)
+    })
+
+    let tooltipClass = 'tooltip'
+    let tooltipEnterSelection = enterSelection.append('g')
+      .classed(tooltipClass, true)
+    tooltipEnterSelection.append('rect')
+      .classed('text-bg', true)
+    tooltipEnterSelection.append('text')
       .attr('text-anchor', 'left')
       .attr('dx', '0')
       .attr('dy', '.35em')
-      .text(p => `pH: ${p.ph}, ev: ${p.ev.toPrecision(2)}`)
-      .call((selection) => selection.each((d, i, nodes) => {
-        d.bbox = nodes[i].getBBox()
-      }))
-    textContainerSelection.insert('rect', 'text')
-      .classed('text-bg', true)
-      .attr('width', d => (1 + textPaddingFactor) * d.bbox.width)
-      .attr('height', d => (1 + textPaddingFactor) * d.bbox.height)
-      .attr('x', d => -0.5 * textPaddingFactor * d.bbox.width)
-      .attr('y', d => -0.5 * (1 + textPaddingFactor) * d.bbox.height)
-      .style('fill', 'yellow')
+    let tooltipMergeSelection = mergeSelection.select(`.${tooltipClass}`)
   }
 
   toggleMolecule (molecule) {

@@ -1,5 +1,8 @@
 /* global d3, $ */
 
+let DATA_URL = ''
+
+/*
 let fakeData = {
   stability_window: {
     points: [
@@ -18,15 +21,41 @@ let fakeData = {
     }))
   }))
 }
+*/
 
 function main () {
   let viz = new PourvaixViz()
-  /*
   d3.json(DATA_URL, function onLoadData (data) {
-    viz.setState({data})
+    let {errors, records} = _parseData(data)
+    if (errors.length > 0) {
+      console.error('Parsing errors: ', errors)
+    }
+    let formattedData = {
+      stability_window: records['stability_window'][0],
+      molecules: records['molecule'],
+    }
+    viz.setState({data: formattedData})
+    // viz.setState({data: fakeData})
   })
-  */
-  viz.setState({data: fakeData})
+}
+
+function _parseData (data) {
+  let errors = []
+  let records = {}
+  for (let record of data.records) {
+    let recordType = record[0]
+    if (!recordType) { continue }
+    try {
+      if (!records[recordType]) {
+        records[recordType] = []
+      }
+      let parsedRecord = JSON.parse(record[1])
+      records[recordType].push(parsedRecord)
+    } catch (err) {
+      errors.push({err, record})
+    }
+  }
+  return {errors, records}
 }
 
 class PourvaixViz {
@@ -51,7 +80,7 @@ class PourvaixViz {
   }
 
   genAppRoot () {
-    let appRoot = d3.select('body').append('div')
+    let appRoot = d3.select('main').append('div')
       .attr('id', 'app-root')
     appRoot.append('div').attr('id', 'left-panel')
     appRoot.append('div').attr('id', 'right-panel')
@@ -274,7 +303,7 @@ class PourvaixViz {
       .attr('transform', `translate(${this.dimensions.chart.width * 0.5},
                                     ${this.dimensions.padding.bottom * 0.6})`)
       .style('font-size', this.dimensions.padding.bottom * 0.3 + 'px')
-      .text('Ph')
+      .text('pH')
     let ehAxis = axesEnterSelection.append('g')
       .classed('ev axis', true)
       .attr('transform', `translate(${this.dimensions.chart.width},0)`)
@@ -310,7 +339,7 @@ class PourvaixViz {
       .classed(pointClass, true)
       .attr('cx', xFn)
       .attr('cy', yFn)
-      .attr('title', p => `[stability window] ph: ${p.ph}, ev: ${p.ev}`)
+      .attr('title', p => `[stability window] pH: ${p.ph}, ev: ${p.ev}`)
     return stabilityWindowEnterSelection
   }
 

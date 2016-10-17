@@ -198,12 +198,20 @@ class PourvaixViz {
 
   updateScales (state) {
     let scales = {}
+    let evPadding = 0.1
+    let phPadding = 0.1
     let scaleCfgs = [
       {key: 'ph', range: [0, this.dimensions.chart.width],
-        genBounds: (calculatedBounds) => calculatedBounds},
+        genBounds: (calculatedBounds) => ({
+          min: calculatedBounds.min - phPadding,
+          max: calculatedBounds.max + phPadding,
+        })
+      },
       {key: 'ev', range: [0, this.dimensions.chart.height], invertDomain: true,
-        genBounds: (calculatedBounds) => Object.assign(
-          {}, calculatedBounds, {min: d3.min([0, calculatedBounds.min])})
+        genBounds: (calculatedBounds) => ({
+          min: d3.min([0, calculatedBounds.min - evPadding]),
+          max: calculatedBounds.max + evPadding,
+        })
       }
     ]
     let combinedPoints = [...this.getStabilityWindowPoints(state),
@@ -239,7 +247,6 @@ class PourvaixViz {
   }
 
   render () {
-    console.log('render', this.state)
     this.renderAxes()
     this.renderStabilityWindow()
     let molecules = this.state.data.molecules
@@ -321,7 +328,7 @@ class PourvaixViz {
       .classed(pointClass, true)
     let pointMergeSelection = pointEnterSelection.merge(pointSelection)
 
-    let circleRadius = 1
+    let circleRadius = 3
     pointEnterSelection
       .append('circle')
         .attr('r', circleRadius)
@@ -329,7 +336,8 @@ class PourvaixViz {
     pointMergeSelection.selectAll('circle')
       .attr('cx', xFn)
       .attr('cy', yFn)
-      .attr('title', p => `pH: ${p.ph}, ev: ${p.ev.toPrecision(2)}`)
+      .attr('title', p => `[${molecule.label}] pH: ${p.ph},
+            ev: ${p.ev.toPrecision(2)}`)
   }
 
   toggleMolecule (molecule) {

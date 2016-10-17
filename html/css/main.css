@@ -33,6 +33,10 @@
   stroke: #000;
 }
 
+.axis .axis-title {
+  fill: #333;
+}
+
 .stability-window .outline {
   fill: hsla(0, 100%, 50%, .1);
   stroke: hsla(0, 100%, 15%, .1);

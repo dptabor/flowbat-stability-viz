@@ -260,17 +260,33 @@ class PourvaixViz {
       ev: d3.axisRight().scale(this.scales.ev),
     }
 
-    let axesSelection = this.chartRoot.selectAll('.axes').data([null]).enter()
+    let axesEnterSelection = this.chartRoot.selectAll('.axes')
+      .data([null]).enter()
       .append('g')
-      .classed('axes', true)
-    axesSelection.append('g')
+        .classed('axes', true)
+    let phAxis = axesEnterSelection.append('g')
       .classed('ph axis', true)
       .attr('transform', `translate(0, ${this.dimensions.chart.height})`)
       .call(this.axes.ph)
-    axesSelection.append('g')
+    phAxis.append('text')
+      .classed('axis-title', true)
+      .attr('text-anchor', 'middle')
+      .attr('transform', `translate(${this.dimensions.chart.width * 0.5},
+                                    ${this.dimensions.padding.bottom * 0.6})`)
+      .style('font-size', this.dimensions.padding.bottom * 0.3 + 'px')
+      .text('Ph')
+    let ehAxis = axesEnterSelection.append('g')
       .classed('ev axis', true)
       .attr('transform', `translate(${this.dimensions.chart.width},0)`)
       .call(this.axes.ev)
+    ehAxis.append('text')
+      .classed('axis-title', true)
+      .attr('text-anchor', 'middle')
+      .attr('transform', `translate(${this.dimensions.padding.right * 0.6},
+                                    ${this.dimensions.chart.height * 0.5})
+                                    rotate(-90)`)
+      .style('font-size', this.dimensions.padding.right * 0.3 + 'px')
+      .text('ev')
   }
 
   renderStabilityWindow () {

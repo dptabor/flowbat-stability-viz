@@ -37,31 +37,34 @@
         <script src="js/main.js"></script>
         <script src="cfg.prod.js"></script>
         <script>
-            if (typeof loadData === 'undefined') {
-                let dataPromise = new Promise((resolve, reject) => {
-                    let fakeData = {
-                        stability_window: {
-                            points: [
-                                {ph: 0, ev: 1.230},
-                                {ph: 14, ev: 0.404},
-                                {ph: 14, ev: -0.826},
-                                {ph: 0, ev: 0.118}
-                            ]
-                        },
-                        molecules: [...Array(3).keys()].map((i) => ({
-                            id: `molecule-${i}`,
-                            label: `Molecule_${i}`,
-                            tags: [1, 2, 3].map(t => `tag_${i}_${t}`),
-                            points: [...Array(12).keys()].map((j) => ({
-                                ph: j, ev: (1.5 - 1.5 * Math.random())
+            if (typeof CFG === 'undefined') {
+                var CFG = {
+                    dataPromise: new Promise((resolve, reject) => {
+                        let fakeData = {
+                            stability_window: {
+                                points: [
+                                    {ph: 0, ev: 1.230},
+                                    {ph: 14, ev: 0.404},
+                                    {ph: 14, ev: -0.826},
+                                    {ph: 0, ev: 0.118}
+                                ]
+                            },
+                            molecules: [...Array(3).keys()].map((i) => ({
+                                id: `molecule-${i}`,
+                                label: `Molecule_${i}`,
+                                tags: [1, 2, 3].map(t => `tag_${i}_${t}`),
+                                points: [...Array(12).keys()].map((j) => ({
+                                    ph: j, ev: (1.5 - 1.5 * Math.random())
+                                }))
                             }))
-                        }))
-                    }
-                    resolve(fakeData)
-                })
+                        }
+                        resolve(fakeData)
+                    }),
+                    renderDataSource: () => 'DataSource: -not specified-',
+                }
             }
             $(document).ready(function () {
-                main({dataPromise})
+                main(CFG)
             })
         </script>
     </body>

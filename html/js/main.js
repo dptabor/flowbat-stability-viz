@@ -1,24 +1,25 @@
 /* global d3, $ */
 
 function main (kwargs = {}) {
-  let {dataPromise} = kwargs
-  let viz = new PourvaixViz()
+  let {dataPromise, renderDataSource} = kwargs
+  let viz = new PourvaixViz({renderDataSource})
   dataPromise.then(data =>  viz.setState({data}))
 }
 
 class PourvaixViz {
-  constructor () {
+  constructor (kwargs = {}) {
+    this.renderDataSource = kwargs.renderDataSource
     this.dimensions = this.genDimensions()
-    this.appRoot = this.genAppRoot()
+    this.appLayout = this.genAppLayout()
     this.setupTooltips()
     this.svgRoot = this.genSvgRoot({
       dimensions: this.dimensions,
-      parent: this.appRoot.select('#left-panel')
+      parent: d3.select('#left-panel')
     })
     this.chartRoot = this.genChartRoot({svgRoot: this.svgRoot,
                                        dimensions: this.dimensions})
     this.selectorRoot = this.genSelectorRoot({
-      parent: this.appRoot.select('#right-panel')
+      parent: d3.select('#right-panel')
     })
     this.dataTable = this.genDataTable({parent: this.selectorRoot})
     this.scales = {}
@@ -27,12 +28,17 @@ class PourvaixViz {
     }
   }
 
-  genAppRoot () {
-    let appRoot = d3.select('main').append('div')
-      .attr('id', 'app-root')
-    appRoot.append('div').attr('id', 'left-panel')
-    appRoot.append('div').attr('id', 'right-panel')
-    return appRoot
+  genAppLayout () {
+    let appLayout = d3.select('main').append('div')
+      .attr('id', 'app')
+    let appHeader = appLayout.append('div').attr('id', 'app-header')
+    appHeader.append('div')
+      .attr('id', 'data-source-info')
+      .html(this.renderDataSource || 'Data source: -not specified-')
+    let appBody = appLayout.append('div').attr('id', 'app-body')
+    appBody.append('div').attr('id', 'left-panel')
+    appBody.append('div').attr('id', 'right-panel')
+    return appLayout
   }
 
   setupTooltips () {

@@ -4,7 +4,7 @@
   width: 96%;
 }
 
-#app-root {
+#app-body {
   display: flex;
   flex-direction: row;
   width: 100%;

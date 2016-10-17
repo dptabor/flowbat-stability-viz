@@ -1,61 +1,9 @@
 /* global d3, $ */
 
-let DATA_URL = ''
-
-/*
-let fakeData = {
-  stability_window: {
-    points: [
-      {ph: 0, ev: 1.230},
-      {ph: 14, ev: 0.404},
-      {ph: 14, ev: -0.826},
-      {ph: 0, ev: 0.118}
-    ]
-  },
-  molecules: [...Array(3).keys()].map((i) => ({
-    id: `molecule-${i}`,
-    label: `Molecule_${i}`,
-    tags: [1, 2, 3].map(t => `tag_${i}_${t}`),
-    points: [...Array(12).keys()].map((j) => ({
-      ph: j, ev: (1.5 - 1.5 * Math.random())
-    }))
-  }))
-}
-*/
-
-function main () {
+function main (kwargs = {}) {
+  let {dataPromise} = kwargs
   let viz = new PourvaixViz()
-  d3.json(DATA_URL, function onLoadData (data) {
-    let {errors, records} = _parseData(data)
-    if (errors.length > 0) {
-      console.error('Parsing errors: ', errors)
-    }
-    let formattedData = {
-      stability_window: records['stability_window'][0],
-      molecules: records['molecule'],
-    }
-    viz.setState({data: formattedData})
-    // viz.setState({data: fakeData})
-  })
-}
-
-function _parseData (data) {
-  let errors = []
-  let records = {}
-  for (let record of data.records) {
-    let recordType = record[0]
-    if (!recordType) { continue }
-    try {
-      if (!records[recordType]) {
-        records[recordType] = []
-      }
-      let parsedRecord = JSON.parse(record[1])
-      records[recordType].push(parsedRecord)
-    } catch (err) {
-      errors.push({err, record})
-    }
-  }
-  return {errors, records}
+  dataPromise.then(data =>  viz.setState({data}))
 }
 
 class PourvaixViz {
@@ -416,7 +364,3 @@ class PourvaixViz {
   }
 
 }
-
-$(document).ready(function () {
-  main()
-})

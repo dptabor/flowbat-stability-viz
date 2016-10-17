@@ -37,10 +37,20 @@
   fill: #333;
 }
 
+.stability-window {
+  fill: hsla(180, 100%, 50%, .1);
+  stroke: hsla(180, 100%, 15%, .1);
+}
+
 .stability-window .outline {
-  fill: hsla(0, 100%, 50%, .1);
-  stroke: hsla(0, 100%, 15%, .1);
+  fill: inherit;
+  stroke: inherit;
   stroke-width: 2;
+}
+
+.stability-window .points circle {
+  fill: inherit;
+  r: 3;
 }
 
 .molecule {

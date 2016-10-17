@@ -293,16 +293,25 @@ class PourvaixViz {
     let points = this.state.data.stability_window.points
     let xFn = d => this.scales.ph(d.ph)
     let yFn = d => this.scales.ev(d.ev)
-    let stabilityWindowSelection = this.chartRoot.selectAll('.stability-window')
-      .data([null]).enter()
-    stabilityWindowSelection.append('g')
-      .classed('stability-window', true)
-      .append('path')
-        .classed('outline', true)
-    stabilityWindowSelection.select('.outline')
+    let stabilityWindowEnterSelection = this.chartRoot.selectAll(
+      '.stability-window').data([null]).enter()
+        .append('g')
+          .classed('stability-window', true)
+    stabilityWindowEnterSelection.append('path')
+      .classed('outline', true)
       .datum(points)
       .attr('d', d3.line().x(xFn).y(yFn))
-    return stabilityWindowSelection
+    let pointsContainer = stabilityWindowEnterSelection.append('g')
+      .classed('points', true)
+    let pointClass = 'point'
+    let pointEnterSelection = pointsContainer.selectAll(`.${pointClass}`)
+      .data(points).enter()
+    pointEnterSelection.append('circle')
+      .classed(pointClass, true)
+      .attr('cx', xFn)
+      .attr('cy', yFn)
+      .attr('title', p => `[stability window] ph: ${p.ph}, ev: ${p.ev}`)
+    return stabilityWindowEnterSelection
   }
 
   renderMoleculesInChart (molecules) {

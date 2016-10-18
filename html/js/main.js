@@ -29,12 +29,13 @@ class PourvaixViz {
   }
 
   genAppLayout () {
-    let appLayout = d3.select('main').append('div')
+    let appLayout = d3.select('#main').append('div')
       .attr('id', 'app')
     let appHeader = appLayout.append('div').attr('id', 'app-header')
     appHeader.append('div')
       .attr('id', 'data-source-info')
       .html(this.renderDataSource || 'Data source: -not specified-')
+    appHeader.append('hr')
     let appBody = appLayout.append('div').attr('id', 'app-body')
     appBody.append('div').attr('id', 'left-panel')
     appBody.append('div').attr('id', 'right-panel')
@@ -42,7 +43,7 @@ class PourvaixViz {
   }
 
   setupTooltips () {
-    $('#app-root').on('mouseover', '[title!=""]', function (ev) {
+    $('#app').on('mouseover', '[title!=""]', function (ev) {
       $(this).qtip({
         overwrite: false, // Make sure the tooltip won't be overridden once created
         hide: {

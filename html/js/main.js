@@ -9,19 +9,19 @@ function main (kwargs = {}) {
 class PourvaixViz {
   constructor (kwargs = {}) {
     this.renderDataSource = kwargs.renderDataSource
-    this.dimensions = this.genDimensions()
     this.appLayout = this.genAppLayout()
+    this.dimensions = this.genDimensions()
     this.setupTooltips()
     this.svgRoot = this.genSvgRoot({
       dimensions: this.dimensions,
-      parent: d3.select('#left-panel')
+      parent: d3.select('#chart-container')
     })
     this.chartRoot = this.genChartRoot({svgRoot: this.svgRoot,
                                        dimensions: this.dimensions})
-    this.selectorRoot = this.genSelectorRoot({
-      parent: d3.select('#right-panel')
+    this.tableRoot = this.genTableRoot({
+      parent: d3.select('#table-container')
     })
-    this.dataTable = this.genDataTable({parent: this.selectorRoot})
+    this.dataTable = this.genDataTable({parent: this.tableRoot})
     this.scales = {}
     this.state = {
       moleculeSelection: {},
@@ -37,8 +37,15 @@ class PourvaixViz {
       .html(this.renderDataSource || 'Data source: -not specified-')
     appHeader.append('hr')
     let appBody = appLayout.append('div').attr('id', 'app-body')
-    appBody.append('div').attr('id', 'left-panel')
-    appBody.append('div').attr('id', 'right-panel')
+    let panelContainer = appBody.append('div').attr('id', 'panel-container')
+    panelContainer.append('div')
+      .attr('id', 'left-panel')
+      .append('div')
+        .attr('id', 'chart-container')
+    panelContainer.append('div')
+      .attr('id', 'right-panel')
+      .append('div')
+        .attr('id', 'table-container')
     return appLayout
   }
 
@@ -62,9 +69,16 @@ class PourvaixViz {
   }
 
   genDimensions () {
+    let boundingRect = d3.select('#left-panel').node()
+      .getBoundingClientRect()
+    let containerWidth = boundingRect.width
+    let containerHeight = boundingRect.height
     let margin = {top: 0, right: 0, bottom: 0, left: 0}
     let padding = {top: 60, right: 60, bottom: 60, left: 60}
-    let outer = {width: 960, height: 500}
+    let outer = {
+      width: containerWidth,
+      height: Math.min(containerHeight, containerWidth * .6),
+    }
     let inner = {
       width: (outer.width - (margin.left + margin.right)),
       height: (outer.height - (margin.top + margin.bottom)),
@@ -87,6 +101,13 @@ class PourvaixViz {
       .attr('class', 'outer')
       .attr('width', dimensions.inner.width)
       .attr('height', dimensions.inner.height)
+    svgRoot.append('text')
+      .attr('class', 'chart-title')
+      .attr('text-anchor', 'middle')
+      .attr('x', dimensions.inner.width / 2)
+      .attr('y', 0.6 * dimensions.padding.top)
+      .style('font-size', this.dimensions.padding.top * 0.3 + 'px')
+      .text('pH vs. ev, with highlighted stability window')
     return svgRoot
   }
 
@@ -102,10 +123,10 @@ class PourvaixViz {
     return chartRoot
   }
 
-  genSelectorRoot ({parent}) {
-    let selectorRoot = parent.append('div')
-    selectorRoot.append('h4').html('Molecules')
-    return selectorRoot
+  genTableRoot ({parent}) {
+    let tableRoot = parent.append('div')
+    tableRoot.append('h4').html('Molecules')
+    return tableRoot
   }
 
   genDataTable ({parent}) {

@@ -1,22 +1,59 @@
+body, html {
+  height: 100%;
+}
+
+body {
+  margin:1em auto;
+  max-width: 92%;
+  line-height: 1.6; 
+  font-size: 18px;
+  color:#444;
+  padding:0 10px;
+}
+
+h1, h2, h3 {
+  line-height: 1.2;
+}
+
 #main {
-  margin-left: auto;
-  margin-right: auto;
-  width: 96%;
+  width: 100%;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#app-header {
+  flex: 0 1 auto;
 }
 
 #app-body {
-  display: flex;
-  flex-direction: row;
+  flex: 1 1 auto;
+  position: relative;
   width: 100%;
-  margin: auto;
+}
+
+#panel-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: rows;
 }
 
 #left-panel {
-  flex: 1 1 auto;
+  flex: 1 1 60%;
 }
 
 #right-panel {
-  flex: 1 1 auto;
+  flex: 1 1 40%;
+  padding-left: 1em;
 }
 
 .outer, .inner {
@@ -64,6 +101,7 @@
   transition: opacity .3s;
   stroke: hsla(0, 50%, 50%, 1.0);
   fill: hsla(0, 50%, 60%, 1.0);
+  cursor: pointer;
 }
 
 .molecule .curve {
@@ -97,4 +135,8 @@
 
 .molecule:hover {
   opacity: 1.0;
+}
+
+#datatable > tbody > tr {
+  cursor: pointer;
 }

@@ -29,6 +29,7 @@ body::after {
 
 h1, h2, h3 {
   line-height: 1.2;
+  margin: 0;
 }
 
 #main {
@@ -48,6 +49,10 @@ h1, h2, h3 {
 #app-header {
   flex: 0 1 auto;
   margin-top: 1em;
+}
+
+#app-header .info {
+  font-size: 70%;
 }
 
 #app-body {

@@ -1,14 +1,15 @@
 /* global d3, $ */
 
 function main (kwargs = {}) {
-  let {dataPromise, renderDataSource} = kwargs
-  let viz = new PourvaixViz({renderDataSource})
+  let {dataPromise, renderDataSource, renderRepo} = kwargs
+  let viz = new PourvaixViz({renderDataSource, renderRepo})
   dataPromise.then(data =>  viz.setState({data}))
 }
 
 class PourvaixViz {
   constructor (kwargs = {}) {
     this.renderDataSource = kwargs.renderDataSource
+    this.renderRepo = kwargs.renderRepo
     this.appLayout = this.genAppLayout()
     this.dimensions = this.genDimensions()
     this.setupTooltips()
@@ -34,7 +35,14 @@ class PourvaixViz {
     let appHeader = appLayout.append('div').attr('id', 'app-header')
     appHeader.append('div')
       .attr('id', 'data-source-info')
-      .html(this.renderDataSource || 'Data source: -not specified-')
+      .classed('info', true)
+      .html(this.renderDataSource() || 'Data source: -not specified-')
+    appHeader.append('div')
+      .attr('id', 'repo-info')
+      .classed('info', true)
+      .html(this.renderRepo() || 'Repo: -not specified-')
+    appHeader.append('h2')
+      .html('Flow Battery Stability Comparison')
     appHeader.append('hr')
     let appBody = appLayout.append('div').attr('id', 'app-body')
     let panelContainer = appBody.append('div').attr('id', 'panel-container')

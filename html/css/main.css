@@ -94,7 +94,8 @@ h1, h2, h3 {
 .inner {
   fill: #ccc;
   stroke: #000;
-  stroke-dasharray: 3, 4;
+  stroke-dasharray: 3, 4; 
+  opacity: 0.5;
 }
 
 .axis line {
@@ -107,8 +108,9 @@ h1, h2, h3 {
 }
 
 .stability-window {
-  fill: hsla(180, 100%, 50%, .1);
-  stroke: hsla(180, 100%, 15%, .1);
+  fill: hsl(180, 100%, 50%);
+  stroke: hsl(180, 100%, 15%);
+  opacity: 0.05;
 }
 
 .stability-window .outline {
@@ -125,9 +127,25 @@ h1, h2, h3 {
 .molecule {
   opacity: .1;
   transition: opacity .3s;
-  stroke: hsla(0, 50%, 50%, 1.0);
-  fill: hsla(0, 50%, 60%, 1.0);
+  stroke: hsl(0, 50%, 50%);
+  fill: hsl(0, 50%, 60%);
+  opacity: .1;
   cursor: pointer;
+}
+
+.red {
+  stroke: hsl(0, 50%, 50%);
+  fill: hsl(0, 50%, 60%);
+}
+
+.blue {
+  stroke: hsl(255, 50%, 50%);
+  fill: hsl(255, 50%, 60%);
+}
+
+.green {
+  stroke: hsl(180, 50%, 50%);
+  fill: hsl(180, 50%, 60%);
 }
 
 .molecule .curve {

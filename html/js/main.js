@@ -58,7 +58,7 @@ class PourvaixViz {
   }
 
   setupTooltips () {
-    $('#app').on('mouseover', '[title!=""]', function (ev) {
+    $('#app').on('mouseover', '[title!=""]', function (event) {
       $(this).qtip({
         overwrite: false, // Make sure the tooltip won't be overridden once created
         hide: {
@@ -69,10 +69,10 @@ class PourvaixViz {
           adjust: {x: 10}
         },
         show: {
-          event: ev.type,
+          event: event.type,
           ready: true,
         }
-      }, ev)
+      }, event)
     })
   }
 
@@ -115,7 +115,7 @@ class PourvaixViz {
       .attr('x', dimensions.inner.width / 2)
       .attr('y', 0.6 * dimensions.padding.top)
       .style('font-size', this.dimensions.padding.top * 0.3 + 'px')
-      .text('pH vs. ev, with highlighted stability window')
+      .text('pH vs. V, with highlighted stability window')
     return svgRoot
   }
 
@@ -211,7 +211,7 @@ class PourvaixViz {
 
   updateScales (state) {
     let scales = {}
-    let evPadding = 0.1
+    let vPadding = 0.1
     let phPadding = 0.1
     let scaleCfgs = [
       {key: 'ph', range: [0, this.dimensions.chart.width],
@@ -220,10 +220,10 @@ class PourvaixViz {
           max: calculatedBounds.max + phPadding,
         })
       },
-      {key: 'ev', range: [0, this.dimensions.chart.height], invertDomain: true,
+      {key: 'V', range: [0, this.dimensions.chart.height], invertDomain: true,
         genBounds: (calculatedBounds) => ({
-          min: d3.min([0, calculatedBounds.min - evPadding]),
-          max: calculatedBounds.max + evPadding,
+          min: d3.min([0, calculatedBounds.min - vPadding]),
+          max: calculatedBounds.max + vPadding,
         })
       }
     ]
@@ -270,7 +270,7 @@ class PourvaixViz {
   renderAxes () {
     this.axes = {
       ph: d3.axisBottom().scale(this.scales.ph),
-      ev: d3.axisRight().scale(this.scales.ev),
+      V: d3.axisRight().scale(this.scales.V),
     }
 
     let axesEnterSelection = this.chartRoot.selectAll('.axes')
@@ -289,9 +289,9 @@ class PourvaixViz {
       .style('font-size', this.dimensions.padding.bottom * 0.3 + 'px')
       .text('pH')
     let ehAxis = axesEnterSelection.append('g')
-      .classed('ev axis', true)
+      .classed('V axis', true)
       .attr('transform', `translate(${this.dimensions.chart.width},0)`)
-      .call(this.axes.ev)
+      .call(this.axes.V)
     ehAxis.append('text')
       .classed('axis-title', true)
       .attr('text-anchor', 'middle')
@@ -299,13 +299,13 @@ class PourvaixViz {
                                     ${this.dimensions.chart.height * 0.5})
                                     rotate(-90)`)
       .style('font-size', this.dimensions.padding.right * 0.3 + 'px')
-      .text('ev')
+      .text('V')
   }
 
   renderStabilityWindow () {
     let points = this.state.data.stability_window.points
     let xFn = d => this.scales.ph(d.ph)
-    let yFn = d => this.scales.ev(d.ev)
+    let yFn = d => this.scales.V(d.V)
     let stabilityWindowEnterSelection = this.chartRoot.selectAll(
       '.stability-window').data([null]).enter()
         .append('g')
@@ -323,7 +323,7 @@ class PourvaixViz {
       .classed(pointClass, true)
       .attr('cx', xFn)
       .attr('cy', yFn)
-      .attr('title', p => `[stability window] pH: ${p.ph}, ev: ${p.ev}`)
+      .attr('title', p => `[stability window] pH: ${p.ph}, V: ${p.V}`)
     return stabilityWindowEnterSelection
   }
 
@@ -335,7 +335,7 @@ class PourvaixViz {
 
   renderMoleculeInChart (molecule) {
     let xFn = d => this.scales.ph(d.ph)
-    let yFn = d => this.scales.ev(d.ev)
+    let yFn = d => this.scales.V(d.V)
 
     let clickHandler = () => this.toggleMolecule(molecule)
 
@@ -346,6 +346,24 @@ class PourvaixViz {
         .classed(`molecule ${molecule.id}`, true)
     let mergeSelection = enterSelection.merge(updateSelection)
     mergeSelection.classed('selected', this._moleculeIsSelected(molecule))
+
+    let tagsToChargeClasses = {
+	'positive_charge': 'red',
+	'negative_charge': 'blue',
+	'neutral_charge': 'black',
+	'default': 'green',
+    }
+    let chargeClass
+    for (let tag of molecule.tags) {
+	if (tagsToChargeClasses[tag]) {
+	  chargeClass = tagsToChargeClasses[tag]
+	}
+    }
+    if (! chargeClass) {
+	chargeClass = tagsToChargeClasses['default']
+    }
+    mergeSelection.classed(chargeClass, true)
+
 
     let curveClass = 'curve'
     let curvePath = d3.line().x(xFn).y(yFn)(molecule.points)
@@ -375,7 +393,7 @@ class PourvaixViz {
       .attr('cx', xFn)
       .attr('cy', yFn)
       .attr('title', p => `[${molecule.label}] pH: ${p.ph},
-            ev: ${p.ev.toPrecision(2)}`)
+            V: ${p.V.toPrecision(2)}`)
   }
 
   toggleMolecule (molecule) {

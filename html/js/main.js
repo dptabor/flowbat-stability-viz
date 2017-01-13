@@ -43,6 +43,8 @@ class PourvaixViz {
       .html(this.renderRepo() || 'Repo: -not specified-')
     appHeader.append('h2')
       .html('Flow Battery Stability Comparison')
+    appHeader.append('div')
+      .html('red=positive, blue=negative, black=neutral, green=variable')
     appHeader.append('hr')
     let appBody = appLayout.append('div').attr('id', 'app-body')
     let panelContainer = appBody.append('div').attr('id', 'panel-container')

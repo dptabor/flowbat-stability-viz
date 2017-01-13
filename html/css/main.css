@@ -138,6 +138,11 @@ h1, h2, h3 {
   fill: hsl(0, 50%, 60%);
 }
 
+.black {
+  stroke: hsl(0, 0%, 0%);
+  fill: hsl(0, 0%, 10%);
+}
+
 .blue {
   stroke: hsl(255, 50%, 50%);
   fill: hsl(255, 50%, 60%);

@@ -9,7 +9,6 @@
         <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> 
 
         <link rel="stylesheet" href="vendor/normalize.min.css">
-        <link rel="stylesheet" href="css/main.css">
 
         <script src="vendor/modernizr-2.8.3.min.js"></script>
         <script src="vendor/d3-4.2.6.min.js"></script>
@@ -34,12 +33,25 @@
         <main id="main">
         </main>
 
+	<script>
+		// The 'CFG' variable gets decorated by the scripts below.
+		var CFG = {}
+	</script>
+
         <script src="js/main.js"></script>
-        <script src="cfg.prod.js"></script>
         <script>
-            if (typeof CFG === 'undefined') {
-                var CFG = {
-                    dataPromise: new Promise((resolve, reject) => {
+
+		CFG.cssPromise = new Promise((resolve, reject) => {
+				var junk = Math.random() 
+				var link = document.createElement("link");
+				link.href = "css/main.css?junk="+junk;
+				link.type = "text/css";
+				link.rel = "stylesheet";
+				document.getElementsByTagName("head")[0].appendChild(link);
+				resolve()
+				})
+
+                CFG.dataPromise = new Promise((resolve, reject) => {
                         let fakeData = {
                             stability_window: {
                                 points: [
@@ -59,12 +71,19 @@
                             }))
                         }
                         resolve(fakeData)
-                    }),
-                    renderDataSource: () => 'DataSource: -not specified-',
-                }
-            }
+                    })
+		CFG.renderDataSource = () => 'DataSource: -not specified-'
+	</script>
+
+	<script src="cfg.prod.js"></script>
+	<script>
+Object.assign(CFG, productionCFG)</script>
+
+	<script>
             $(document).ready(function () {
-                main(CFG)
+		Promise.all([CFG.cssPromise, CFG.dataPromise]).then(() => {
+		   main(CFG)
+		})
             })
         </script>
     </body>
